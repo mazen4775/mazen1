@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>بوابة الدفع - KNET</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f3f3f3; text-align: center; padding: 40px; }
+    h1 { color: #d90000; }
+    .summary { margin: 20px auto; padding: 20px; background-color: white; border-radius: 12px; width: 300px;
+               box-shadow: 0 0 10px rgba(0,0,0,0.1); font-size: 18px; }
+    .form { margin-top: 30px; background: white; padding: 20px; width: 300px; margin-inline: auto;
+            border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input { width: 100%; padding: 10px; margin: 10px 0; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; }
+    button { padding: 12px 30px; font-size: 16px; background-color: #d90000; color: white; border: none;
+             border-radius: 8px; cursor: pointer; width: 100%; }
+    button:hover { background-color: #b30000; }
+  </style>
+</head>
+<body>
+  <h1>بوابة الدفع - KNET</h1>
+  <div class="summary" id="summary"></div>
+  <div class="form">
+    <input type="text" placeholder="رقم البطاقة" maxlength="16" />
+    <input type="text" placeholder="الاسم على البطاقة" />
+    <input type="text" placeholder="تاريخ الانتهاء (MM/YY)" />
+    <input type="text" placeholder="رمز التحقق (CVV)" maxlength="4" />
+    <button onclick="confirmPayment()">تأكيد الدفع</button>
+  </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyCsVUzsLWC9W4gO97JbjRKMfCTJ30NwvZ4",
+      authDomain: "sample-firebase-ai-app1-28d57.firebaseapp.com",
+      databaseURL: "https://sample-firebase-ai-app1-28d57-default-rtdb.firebaseio.com",
+      projectId: "sample-firebase-ai-app1-28d57",
+      storageBucket: "sample-firebase-ai-app1-28d57.appspot.com",
+      messagingSenderId: "92871811514",
+      appId: "1:92871811514:web:ff3def868bbed941b2fd83"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const amount = localStorage.getItem("amount") || "--";
+    const phone = localStorage.getItem("phone") || "--";
+    const method = localStorage.getItem("paymentMethod") || "--";
+    document.getElementById("summary").innerText = `رقم الهاتف: ${phone}\nالمبلغ: ${amount} د.ك\nطريقة الدفع: ${method.toUpperCase()}`;
+    function confirmPayment() {
+      const refPath = ref(db, 'orders/');
+      const newOrder = push(refPath);
+      set(newOrder, {
+        phone: phone,
+        amount: amount,
+        paymentMethod: method,
+        time: new Date().toISOString()
+      }).then(() => {
+        alert("✅ تم تنفيذ عملية الدفع بنجاح!");
+        window.location.href = "index.html";
+      }).catch(err => {
+        alert("حدث خطأ أثناء حفظ البيانات في Firebase");
+        console.error(err);
+      });
+    }
+  </script>
+</body>
+</html>
